@@ -2,7 +2,6 @@ package listmonk
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -16,7 +15,7 @@ type PostTransactionalService struct {
 	subscriberIds    []uint
 	templateId       uint
 	fromEmail        string
-	data             map[string]string
+	data             map[string]interface{}
 	headers          map[string]string
 	messenger        string
 	content_type     string
@@ -52,7 +51,7 @@ func (s *PostTransactionalService) FromEmail(email string) *PostTransactionalSer
 	return s
 }
 
-func (s *PostTransactionalService) Data(data map[string]string) *PostTransactionalService {
+func (s *PostTransactionalService) Data(data map[string]interface{}) *PostTransactionalService {
 	s.data = data
 	return s
 }
@@ -118,25 +117,19 @@ func (s *PostTransactionalService) Do(ctx context.Context, opts ...requestOption
 	}
 
 	if len(s.data) > 0 {
-		dataJson, err := json.Marshal(s.data)
-
-		if err != nil {
-			return err
-		}
-
-		r.setJsonParam("data", string(dataJson))
+		r.setJsonParam("data", s.data)
 	}
 
 	if len(s.headers) > 0 {
-		elements := make([]string, 0)
+		// elements := make([]string, 0)
+		//
+		// for k, v := range s.headers {
+		// 	elements = append(elements, fmt.Sprintf("{%s: %s}", fmt.Sprintf("\"%s\"", k), fmt.Sprintf("\"%s\"", v)))
+		// }
+		//
+		// headers := "[" + strings.Join(elements, ", ") + "]"
 
-		for k, v := range s.headers {
-			elements = append(elements, fmt.Sprintf("{%s: %s}", fmt.Sprintf("\"%s\"", k), fmt.Sprintf("\"%s\"", v)))
-		}
-
-		headers := "[" + strings.Join(elements, ", ") + "]"
-
-		r.setJsonParam("headers", headers)
+		r.setJsonParam("headers", s.headers)
 	}
 
 	if s.messenger != "" {

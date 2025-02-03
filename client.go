@@ -3,7 +3,7 @@ package listmonk
 import (
 	"context"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 )
 
@@ -50,7 +50,7 @@ func (c *Client) callAPI(ctx context.Context, r *request, opts ...requestOption)
 		return nil, err
 	}
 
-	data, err := ioutil.ReadAll(res.Body)
+	data, err := io.ReadAll(res.Body)
 
 	if err != nil {
 		return []byte{}, err
